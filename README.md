@@ -201,9 +201,7 @@ For commercial licensing, collaboration opportunities, or inquiries:
 
 - **Developer**: Leon Šilipetar
 - **Project**: Cadenza - Music School Management PWA
-- **GitHub**: [Your GitHub profile]
-- **Email**: [Your email address]
-- **LinkedIn**: [Your LinkedIn profile]
+- **GitHub**: https://github.com/leonsilipetar
 
 ---
 
