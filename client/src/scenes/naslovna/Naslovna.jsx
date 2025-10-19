@@ -576,36 +576,24 @@ const Naslovna = ({ user, unreadChatsCount }) => {
                         <span>{poll.responses?.length || 0} odgovora</span>
                       </div>
                       <div className="poll-options">
-                        <button
-                          className={`poll-option-btn ${poll.responses?.find(r => r.userId === user.id)?.response === 'da' ? 'selected' : ''}`}
-                          onClick={() => handleVote(poll.id, 'da')}
-                          disabled={isExpired(poll.endDate) || getRemainingVoteTime(poll.responses, user.id) === 0}
-                          style={poll.responses?.length > 0 ? {
-                            '--percentage-width': `${calculatePercentage(poll.responses, 'da')}%`
-                          } : {}}
-                        >
-                          <span>Da</span>
-                          {poll.responses?.find(r => r.userId === user.id) && (
-                            <span className="poll-percentage">
-                              {calculatePercentage(poll.responses, 'da')}%
-                            </span>
-                          )}
-                        </button>
-                        <button
-                          className={`poll-option-btn ${poll.responses?.find(r => r.userId === user.id)?.response === 'ne' ? 'selected' : ''}`}
-                          onClick={() => handleVote(poll.id, 'ne')}
-                          disabled={isExpired(poll.endDate) || getRemainingVoteTime(poll.responses, user.id) === 0}
-                          style={poll.responses?.length > 0 ? {
-                            '--percentage-width': `${calculatePercentage(poll.responses, 'ne')}%`
-                          } : {}}
-                        >
-                          <span>Ne</span>
-                          {poll.responses?.find(r => r.userId === user.id) && (
-                            <span className="poll-percentage">
-                              {calculatePercentage(poll.responses, 'ne')}%
-                            </span>
-                          )}
-                        </button>
+                        {poll.options && poll.options.map((option, index) => (
+                          <button
+                            key={index}
+                            className={`poll-option-btn ${poll.responses?.find(r => r.userId === user.id)?.response === option ? 'selected' : ''}`}
+                            onClick={() => handleVote(poll.id, option)}
+                            disabled={isExpired(poll.endDate) || getRemainingVoteTime(poll.responses, user.id) === 0}
+                            style={poll.responses?.length > 0 ? {
+                              '--percentage-width': `${calculatePercentage(poll.responses, option)}%`
+                            } : {}}
+                          >
+                            <span>{option}</span>
+                            {poll.responses?.find(r => r.userId === user.id) && (
+                              <span className="poll-percentage">
+                                {calculatePercentage(poll.responses, option)}%
+                              </span>
+                            )}
+                          </button>
+                        ))}
                       </div>
                       {poll.responses?.find(r => r.userId === user.id) && getRemainingVoteTime(poll.responses, user.id) > 0 && (
                         <div className="poll-vote-timer">
@@ -672,29 +660,33 @@ const Naslovna = ({ user, unreadChatsCount }) => {
                     <div key={post.id} className="post-card">
                       <div className="post-header">
                         <h3>{post.title}</h3>
-                        {user?.id === post.author.id && (
-                          <div className="post-actions">
-                            <button
-                              className="action-btn abEdit"
-                              onClick={() => handleEditPost(post)}
-                            >
-                              <Icon icon="solar:pen-broken" />
-                            </button>
-                            <button
-                              className="action-btn abDelete"
-                              onClick={() => handleDeletePost(post.id)}
-                            >
-                              <Icon icon="solar:trash-bin-trash-broken" />
-                            </button>
-                            <button
+                        <div className="post-actions">
+                          {user?.id === post.author.id && (
+                            <>
+                              <button
+                                className="action-btn abEdit"
+                                onClick={() => handleEditPost(post)}
+                                title="Uredi"
+                              >
+                                <Icon icon="solar:pen-broken" />
+                              </button>
+                              <button
+                                className="action-btn abDelete"
+                                onClick={() => handleDeletePost(post.id)}
+                                title="Obriši"
+                              >
+                                <Icon icon="solar:trash-bin-trash-broken" />
+                              </button>
+                            </>
+                          )}
+                          <button
                             className="action-btn abExpand"
                             onClick={() => handleOpenPost(post)}
                             title="Prikaži detalje"
                           >
                             <Icon icon="solar:eye-broken" />
                           </button>
-                          </div>
-                        )}
+                        </div>
                       </div>
                       <div
                         className={`post-content ${expandedPosts.has(post.id) ? 'expanded' : ''}`}
@@ -948,28 +940,19 @@ const Naslovna = ({ user, unreadChatsCount }) => {
                 </div>
                 <div style={{ fontSize: '0.9rem', opacity: 0.8 }}>Ukupno odgovora</div>
               </div>
-              <div style={{
-                background: 'rgba(40, 167, 69, 0.1)',
-                padding: '1rem',
-                borderRadius: 'var(--radius)',
-                textAlign: 'center'
-              }}>
-                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#28a745' }}>
-                  {calculatePercentage(selectedPoll.responses, 'da')}%
+              {selectedPoll.options && selectedPoll.options.map((option, index) => (
+                <div key={index} style={{
+                  background: 'rgba(var(--isticanje2), 0.1)',
+                  padding: '1rem',
+                  borderRadius: 'var(--radius)',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'rgb(var(--isticanje))' }}>
+                    {calculatePercentage(selectedPoll.responses, option)}%
+                  </div>
+                  <div style={{ fontSize: '0.9rem', opacity: 0.8 }}>{option}</div>
                 </div>
-                <div style={{ fontSize: '0.9rem', opacity: 0.8 }}>Da</div>
-              </div>
-              <div style={{
-                background: 'rgba(220, 53, 69, 0.1)',
-                padding: '1rem',
-                borderRadius: 'var(--radius)',
-                textAlign: 'center'
-              }}>
-                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#dc3545' }}>
-                  {calculatePercentage(selectedPoll.responses, 'ne')}%
-                </div>
-                <div style={{ fontSize: '0.9rem', opacity: 0.8 }}>Ne</div>
-              </div>
+              ))}
             </div>
 
             {/* Responses List */}
@@ -983,8 +966,8 @@ const Naslovna = ({ user, unreadChatsCount }) => {
                     <div
                       key={index}
                       style={{
-                        background: response.response === 'da' ? 'rgba(40, 167, 69, 0.05)' : 'rgba(220, 53, 69, 0.05)',
-                        border: `1px solid ${response.response === 'da' ? 'rgba(40, 167, 69, 0.2)' : 'rgba(220, 53, 69, 0.2)'}`,
+                        background: 'rgba(var(--isticanje2), 0.05)',
+                        border: '1px solid rgba(var(--isticanje2), 0.2)',
                         padding: '1rem',
                         borderRadius: 'var(--radius)',
                         display: 'flex',
@@ -1004,12 +987,12 @@ const Naslovna = ({ user, unreadChatsCount }) => {
                       <div style={{
                         padding: '0.5rem 1rem',
                         borderRadius: 'var(--radius)',
-                        background: response.response === 'da' ? '#28a745' : '#dc3545',
+                        background: 'rgb(var(--isticanje))',
                         color: 'white',
                         fontWeight: 'bold',
                         fontSize: '0.9rem'
                       }}>
-                        {response.response.toUpperCase()}
+                        {response.response}
                       </div>
                     </div>
                   ))}

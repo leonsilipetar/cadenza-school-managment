@@ -568,10 +568,11 @@ const Korisnici = () => {
         <KorisnikDetalji
           korisnikId={korisnikDetaljiOtvoreno}
           userData={korisnici.find(k => k.id === korisnikDetaljiOtvoreno)}
-          onCancel={async () => {
+          onCancel={() => {
             setKorisnikDetaljiOtvoreno(false);
-            await refreshUsers();
+            invalidateUsers();
           }}
+          onSave={invalidateUsers}
         />
       )}
       {odabranoDodajKorisnika && (

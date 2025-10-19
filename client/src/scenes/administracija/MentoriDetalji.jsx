@@ -5,7 +5,7 @@ import { Icon } from '@iconify/react';
 import { showNotification } from '../../components/Notifikacija';
 import Modal from '../../components/Modal';
 
-const MentorDetalji = ({ korisnikId, onCancel, selfService = false }) => {
+const MentorDetalji = ({ korisnikId, onCancel, selfService = false, onSave }) => {
   const [inputs, setInputs] = useState({
     korisnickoIme: '',
     email: '',
@@ -312,6 +312,14 @@ const MentorDetalji = ({ korisnikId, onCancel, selfService = false }) => {
 
       // Reset removedStudents after successful save
       setInputs(prev => ({ ...prev, removedStudents: [] }));
+      
+      // Call onSave callback if provided (for React Query cache invalidation)
+      if (onSave) {
+        onSave();
+      }
+      
+      // Close modal after successful save
+      onCancel();
     } catch (error) {
       console.error('Error updating mentor:', error);
       showNotification('error', error.response?.data?.message || 'Greška pri ažuriranju mentora.');

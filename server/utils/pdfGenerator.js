@@ -260,7 +260,7 @@ const generateEnrollmentConfirmationPDF = async (user, invoiceSettings, enrollme
       doc.restore();
 
       // Header with logo on the right
-      const logoPath = path.join(__dirname, '../public/MAI Logo.png');
+      const logoPath = path.join(__dirname, '../public/logo512.png');
       let logoX = pageWidth - margin - 100;
       try {
         doc.image(logoPath, logoX, 50, { fit: [100, 100] });

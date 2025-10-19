@@ -7,7 +7,7 @@ import { showNotification } from '../../components/Notifikacija';
 
 axios.defaults.withCredentials = true;
 
-const KorisnikDetalji = ({ korisnikId, userData, onCancel, selfService }) => {
+const KorisnikDetalji = ({ korisnikId, userData, onCancel, selfService, onSave }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [mentors, setMentors] = useState([]);
   const [schools, setSchools] = useState([]);
@@ -224,6 +224,12 @@ const KorisnikDetalji = ({ korisnikId, userData, onCancel, selfService }) => {
           roditelj1: userData.roditelj1 || { ime: '', prezime: '', brojMobitela: '' },
           roditelj2: userData.roditelj2 || { ime: '', prezime: '', brojMobitela: '' }
         }));
+        
+        // Call onSave callback if provided (for React Query cache invalidation)
+        if (onSave) {
+          onSave();
+        }
+        
         onCancel();
       }
     } catch (err) {

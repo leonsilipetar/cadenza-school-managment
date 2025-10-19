@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Icon } from '@iconify/react';
 import ApiConfig from './apiConfig';
-import "../styles/Profile.css";
+import "../scenes/Profile.css";
 import { showNotification } from './Notifikacija';
 
 const UserInfoComponent = ({ user, schoolName, mentorName }) => {

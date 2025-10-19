@@ -323,6 +323,7 @@ const Mentori = () => {
         <MentorDetalji
           korisnikId={korisnikDetaljiOtvoreno}
           onCancel={() => setKorisnikDetaljiOtvoreno(false)}
+          onSave={() => invalidateMentors()}
         />
       )}
       {odabranoDodajKorisnika && (

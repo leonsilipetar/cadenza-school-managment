@@ -22,7 +22,10 @@ const ProgramDetalji = ({ program, onClose, onUpdate }) => {
       const transformedTipovi = {};
       if (Array.isArray(program.tipovi)) {
         program.tipovi.forEach(({ tip, cijena }) => {
-          transformedTipovi[tip] = cijena.toString();
+          // Check if cijena exists before converting to string
+          if (cijena !== undefined && cijena !== null) {
+            transformedTipovi[tip] = cijena.toString();
+          }
         });
       }
 

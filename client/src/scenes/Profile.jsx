@@ -13,6 +13,7 @@ import LoadingShell from '../components/LoadingShell.jsx';
 import { showNotification } from '../components/Notifikacija';
 import './Profile.css';
 import KorisnikDetalji from './administracija/KorisnikDetalji.jsx';
+import { useMentorStudents, useInvalidateMentorStudents } from '../hooks/useMentorStudents';
 
 axios.defaults.withCredentials = true;
 
@@ -33,10 +34,14 @@ const Profile = ({ user, unreadChatsCount }) => {
   const [pdfLoading, setPdfLoading] = useState(false);
   const [freshUser, setFreshUser] = useState(null);
   const [activeTab, setActiveTab] = useState('profile');
-  const [mentorStudents, setMentorStudents] = useState([]);
-  const [studentsLoading, setStudentsLoading] = useState(false);
   const [showStudentDetails, setShowStudentDetails] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState(null);
+  
+  // React Query hooks for mentor students
+  const { data: mentorStudents = [], isLoading: studentsLoading } = useMentorStudents(
+    user?.isMentor && activeTab === 'students'
+  );
+  const invalidateMentorStudents = useInvalidateMentorStudents();
 
   // Initialize reminderSettings from user data or defaults
   const [reminderSettings, setReminderSettings] = useState(() => {
@@ -475,25 +480,7 @@ const Profile = ({ user, unreadChatsCount }) => {
     };
   }, [user?.id]);
 
-  // Fetch mentor students when mentors open the Students tab
-  useEffect(() => {
-    const fetchStudents = async () => {
-      if (!user?.isMentor || activeTab !== 'students') return;
-      try {
-        setStudentsLoading(true);
-        // QUICK WIN: Removed no-cache to allow caching
-        const res = await ApiConfig.cachedApi.get('/api/mentors/students');
-        setMentorStudents(Array.isArray(res.data) ? res.data : Array.isArray(res) ? res : []);
-      } catch (e) {
-        console.error('Error fetching mentor students:', e);
-        setMentorStudents([]);
-        showNotification('error', 'Greška pri dohvaćanju učenika');
-      } finally {
-        setStudentsLoading(false);
-      }
-    };
-    fetchStudents();
-  }, [activeTab, user?.isMentor]);
+  // Note: useMentorStudents hook handles fetching automatically based on activeTab and user.isMentor
 
   // Handle logout
   const handleLogout = () => {
@@ -799,6 +786,7 @@ const Profile = ({ user, unreadChatsCount }) => {
         <KorisnikDetalji
           korisnikId={selectedStudentId}
           onCancel={() => { setShowStudentDetails(false); setSelectedStudentId(null); }}
+          onSave={invalidateMentorStudents}
         />
       )}
     </>

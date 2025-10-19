@@ -74,11 +74,22 @@ const EnrollmentConfirm = ({ user }) => {
     const fetchData = async () => {
       setLoading(true);
       try {
+        // Use fresh (non-cached) API calls to check enrollment status
         const [enrollRes, agreementRes, userRes] = await Promise.all([
-          ApiConfig.cachedApi.get('/api/enrollment/current'),
-          ApiConfig.cachedApi.get('/api/enrollment/agreement'),
+          ApiConfig.api.get('/api/enrollment/current'),
+          ApiConfig.api.get('/api/enrollment/agreement'),
           ApiConfig.api.get(`/api/korisnik/${user.id}`)
         ]);
+
+        console.log('📋 Enrollment check:', enrollRes.enrollment);
+
+        // If enrollment is already accepted, redirect immediately
+        if (enrollRes.enrollment?.agreementAccepted) {
+          console.log('✅ Enrollment already accepted, redirecting to /user');
+          navigate('/user', { replace: true });
+          return;
+        }
+
         setEnrollment(enrollRes.enrollment);
         setAgreementText(agreementRes.agreementText);
         const u = userRes.user || userRes.data?.user || null;
@@ -114,18 +125,15 @@ const EnrollmentConfirm = ({ user }) => {
           setSelectedProgramId(user.programs[0].id);
         }
         // If user has no programs at all, selectedProgramId remains null and they must choose
-
-        if (enrollRes.enrollment?.agreementAccepted) {
-          navigate('/user');
-        }
       } catch (err) {
+        console.error('❌ Error fetching enrollment data:', err);
         setError('Greška pri dohvaćanju podataka.');
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, [navigate]);
+  }, [navigate, user.id]);
 
   // Fetch available programs for the user's school
   useEffect(() => {
@@ -195,13 +203,28 @@ const EnrollmentConfirm = ({ user }) => {
 
   // Auto-select single option when program changes
   useEffect(() => {
-    const options = getLessonFrequencyOptions();
-    if (options.length === 1) {
-      setSelectedLessonFrequency(options[0].tip);
-    } else if (!selectedProgramId) {
+    if (!selectedProgramId) {
       setSelectedLessonFrequency('');
+      return;
     }
-  }, [selectedProgramId, programs]);
+
+    const options = getLessonFrequencyOptions();
+    console.log('📋 Lesson frequency options for program:', selectedProgramId, options);
+
+    if (options.length === 1) {
+      // Auto-select if only one option
+      console.log('✅ Auto-selecting single option:', options[0].tip);
+      setSelectedLessonFrequency(options[0].tip);
+    } else if (options.length > 1) {
+      // Clear selection when switching to multi-option program
+      // unless current selection is valid for new program
+      const validOptions = options.map(o => o.tip);
+      if (!validOptions.includes(selectedLessonFrequency)) {
+        console.log('🔄 Clearing invalid selection');
+        setSelectedLessonFrequency('');
+      }
+    }
+  }, [selectedProgramId, programs, selectedLessonFrequency]);
 
   // Auto-open chooser if user has no assigned program
   useEffect(() => {
@@ -322,10 +345,12 @@ const EnrollmentConfirm = ({ user }) => {
   };
 
   const handleConfirm = async () => {
+    console.log('🚀 handleConfirm called');
     setError(null);
     // Debounce: onemogući klik na 1 minutu
     const now = Date.now();
     if (now - lastSubmitTime < 60000) {
+      console.log('⏰ Too soon, cooldown active');
       setError('Već ste poslali zahtjev. Pričekajte minutu prije ponovnog pokušaja.');
       return;
     }
@@ -336,38 +361,63 @@ const EnrollmentConfirm = ({ user }) => {
     errs.brojMobitela = validateField('brojMobitela', details.brojMobitela);
     setFieldErrors(errs);
     const hasFieldErrors = Object.values(errs).some(Boolean);
+    console.log('📋 Field errors:', errs, 'hasFieldErrors:', hasFieldErrors);
+    console.log('👨‍👩‍👧 Parents validation:', validateParentsIfNeeded(), 'isUnderAge:', isUnderAge);
+
     if (hasFieldErrors || !validateParentsIfNeeded()) {
-      setError('Molimo ispunite obavezna polja za potvrdu upisa.');
+      console.log('❌ Validation failed');
+
+      // Build specific error message
+      const errorMessages = [];
+      if (errs.oib) errorMessages.push(`OIB: ${errs.oib}`);
+      if (errs.datumRodjenja) errorMessages.push(`Datum rođenja: ${errs.datumRodjenja}`);
+      if (errs.brojMobitela) errorMessages.push(`Broj mobitela: ${errs.brojMobitela}`);
+      if (!validateParentsIfNeeded()) errorMessages.push('Podaci o roditeljima nisu potpuni (ime, prezime i broj mobitela oba roditelja)');
+
+      setError(
+        <div>
+          <strong>Neispravan unos podataka:</strong>
+          <ul style={{ textAlign: 'left', marginTop: '8px', marginBottom: 0, paddingLeft: '24px' }}>
+            {errorMessages.map((msg, idx) => (
+              <li key={idx}>{msg}</li>
+            ))}
+          </ul>
+        </div>
+      );
       return;
     }
+    console.log('✅ Validation passed, submitting...');
     setLastSubmitTime(now);
     setLoading(true);
 
     try {
       // Save user details first
       await saveUserDetails();
-      // Use cachedApi for better offline support
-      const response = await ApiConfig.cachedApi.post('/api/enrollment/accept', {
+      // Use regular API (not cached) for enrollment submission
+      const response = await ApiConfig.api.post('/api/enrollment/accept', {
         agreementText,
         programId: selectedProgramId, // Include selected program
         schoolId: user?.schoolId,
         pohadanjeNastave: selectedLessonFrequency
       });
 
-      if (response.offline) {
-        // Request was queued for later
-        setPendingEnrollment(true);
-        setError('Nema internetske veze. Zahtjev će biti poslan kada se vratite online.');
-        setLoading(false);
-        return;
+      console.log('✅ Enrollment accepted successfully');
+
+      // Clear enrollment cache to force fresh data on next load
+      if (ApiConfig.cachedApi.clearCache) {
+        ApiConfig.cachedApi.clearCache();
       }
 
       setAccepted(true);
       setPendingEnrollment(false);
+
       // Debounce: onemogući ponovno slanje
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => setLastSubmitTime(0), 60000);
-      navigate('/user');
+
+      // Navigate to user page
+      console.log('🔄 Navigating to /user');
+      navigate('/user', { replace: true });
     } catch (err) {
       if (err.response?.status === 429) {
         // Rate limit exceeded
@@ -433,7 +483,28 @@ const EnrollmentConfirm = ({ user }) => {
         </div>
       )}
 
-      {error && <div className="error-message" style={{ marginBottom: 16 }}>{error}</div>}
+      {error && (
+        <div
+          ref={(el) => { if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
+          style={{
+            background: '#f8d7da',
+            border: '2px solid #f5c6cb',
+            color: '#721c24',
+            padding: '16px',
+            borderRadius: '8px',
+            marginBottom: 16,
+            fontSize: '15px',
+            fontWeight: 500,
+            boxShadow: '0 4px 12px rgba(220, 53, 69, 0.2)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+            <Icon icon="solar:danger-circle-bold" style={{ fontSize: '24px', marginRight: '8px' }} />
+            <span style={{ fontSize: '16px', fontWeight: 'bold' }}>Greška</span>
+          </div>
+          {error}
+        </div>
+      )}
 
       <div className="form-section" style={{ marginBottom: 32 }}>
         <h3 style={{ color: 'var(--tekst)', marginBottom: 12 }}>Vaši podaci</h3>
@@ -607,10 +678,16 @@ const EnrollmentConfirm = ({ user }) => {
                   )}
                 </label>
                 <div className="auth-radio-group styled-radio-group">
-                  {lessonOptions.map((option) => (
+                  {lessonOptions.map((option, idx) => (
                     <label
-                      key={option.tip}
+                      key={`${option.tip}-${idx}`}
                       className={`styled-radio${selectedLessonFrequency === option.tip ? ' selected' : ''}`}
+                      style={{ cursor: 'pointer', position: 'relative' }}
+                      onClick={(e) => {
+                        // Ensure click on label selects the option
+                        console.log('🔘 Label clicked:', option.tip);
+                        setSelectedLessonFrequency(option.tip);
+                      }}
                     >
                       <div className="radio-content">
                         <input
@@ -618,7 +695,10 @@ const EnrollmentConfirm = ({ user }) => {
                           name="pohadanjeNastave"
                           value={option.tip}
                           checked={selectedLessonFrequency === option.tip}
-                          onChange={(e) => setSelectedLessonFrequency(e.target.value)}
+                          onChange={(e) => {
+                            console.log('🔘 Radio onChange:', e.target.value);
+                            setSelectedLessonFrequency(e.target.value);
+                          }}
                           required
                         />
                         <span className="styled-radio-custom"></span>
@@ -692,14 +772,34 @@ const EnrollmentConfirm = ({ user }) => {
                 type="text"
                 className={`input-login-signup ${touched.oib && fieldErrors.oib ? 'auth-signup-input-error' : ''}`}
                 value={details.oib}
-                onChange={(e) => setDetails(prev => ({ ...prev, oib: e.target.value.slice(0, 11) }))}
-                onBlur={() => setTouched(prev => ({ ...prev, oib: true }))}
-                placeholder="OIB"
+                onChange={(e) => {
+                  const newValue = e.target.value.slice(0, 11);
+                  setDetails(prev => ({ ...prev, oib: newValue }));
+                  // Validate on change if already touched
+                  if (touched.oib) {
+                    setFieldErrors(prev => ({ ...prev, oib: validateField('oib', newValue) }));
+                  }
+                }}
+                onBlur={() => {
+                  setTouched(prev => ({ ...prev, oib: true }));
+                  setFieldErrors(prev => ({ ...prev, oib: validateField('oib', details.oib) }));
+                }}
+                placeholder="11 znamenki"
                 maxLength={11}
                 style={{ paddingLeft: '36px' }}
               />
             </div>
-            {touched.oib && fieldErrors.oib && <span className="auth-field-error">{fieldErrors.oib}</span>}
+            {touched.oib && fieldErrors.oib && (
+              <span className="auth-field-error" style={{
+                display: 'block',
+                color: '#dc3545',
+                fontSize: '13px',
+                marginTop: '4px',
+                fontWeight: 500
+              }}>
+                {fieldErrors.oib}
+              </span>
+            )}
           </div>
           <div className="auth-signup-group">
             <label className="auth-signup-label">Datum rođenja <span className="auth-required">*</span></label>
@@ -709,12 +809,31 @@ const EnrollmentConfirm = ({ user }) => {
                 type="date"
                 className={`input-login-signup ${touched.datumRodjenja && fieldErrors.datumRodjenja ? 'auth-signup-input-error' : ''}`}
                 value={details.datumRodjenja}
-                onChange={(e) => setDetails(prev => ({ ...prev, datumRodjenja: e.target.value }))}
-                onBlur={() => setTouched(prev => ({ ...prev, datumRodjenja: true }))}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  setDetails(prev => ({ ...prev, datumRodjenja: newValue }));
+                  if (touched.datumRodjenja) {
+                    setFieldErrors(prev => ({ ...prev, datumRodjenja: validateField('datumRodjenja', newValue) }));
+                  }
+                }}
+                onBlur={() => {
+                  setTouched(prev => ({ ...prev, datumRodjenja: true }));
+                  setFieldErrors(prev => ({ ...prev, datumRodjenja: validateField('datumRodjenja', details.datumRodjenja) }));
+                }}
                 style={{ paddingLeft: '36px' }}
               />
             </div>
-            {touched.datumRodjenja && fieldErrors.datumRodjenja && <span className="auth-field-error">{fieldErrors.datumRodjenja}</span>}
+            {touched.datumRodjenja && fieldErrors.datumRodjenja && (
+              <span className="auth-field-error" style={{
+                display: 'block',
+                color: '#dc3545',
+                fontSize: '13px',
+                marginTop: '4px',
+                fontWeight: 500
+              }}>
+                {fieldErrors.datumRodjenja}
+              </span>
+            )}
           </div>
           <div className="auth-signup-group">
             <label className="auth-signup-label">Broj mobitela <span className="auth-required">*</span></label>
@@ -724,13 +843,32 @@ const EnrollmentConfirm = ({ user }) => {
                 type="tel"
                 className={`input-login-signup ${touched.brojMobitela && fieldErrors.brojMobitela ? 'auth-signup-input-error' : ''}`}
                 value={details.brojMobitela}
-                onChange={(e) => setDetails(prev => ({ ...prev, brojMobitela: e.target.value }))}
-                onBlur={() => setTouched(prev => ({ ...prev, brojMobitela: true }))}
-                placeholder="Unesite broj mobitela"
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  setDetails(prev => ({ ...prev, brojMobitela: newValue }));
+                  if (touched.brojMobitela) {
+                    setFieldErrors(prev => ({ ...prev, brojMobitela: validateField('brojMobitela', newValue) }));
+                  }
+                }}
+                onBlur={() => {
+                  setTouched(prev => ({ ...prev, brojMobitela: true }));
+                  setFieldErrors(prev => ({ ...prev, brojMobitela: validateField('brojMobitela', details.brojMobitela) }));
+                }}
+                placeholder="+385 91 234 5678"
                 style={{ paddingLeft: '36px' }}
               />
             </div>
-            {touched.brojMobitela && fieldErrors.brojMobitela && <span className="auth-field-error">{fieldErrors.brojMobitela}</span>}
+            {touched.brojMobitela && fieldErrors.brojMobitela && (
+              <span className="auth-field-error" style={{
+                display: 'block',
+                color: '#dc3545',
+                fontSize: '13px',
+                marginTop: '4px',
+                fontWeight: 500
+              }}>
+                {fieldErrors.brojMobitela}
+              </span>
+            )}
           </div>
         </div>
 
@@ -927,18 +1065,94 @@ const EnrollmentConfirm = ({ user }) => {
         <div className="form-actions" style={{ textAlign: 'center' }}>
           <button
             className="submit-btn"
-            disabled={
-              !accepted ||
-              loading ||
-              (Date.now() - lastSubmitTime < 60000) ||
-              (!selectedProgramId && showProgramChooser) ||
-              (showProgramChooser && lessonOptions.length > 0 && !selectedLessonFrequency) ||
-              // Disable if OIB missing/invalid or address entirely empty
-              (!details.oib || String(details.oib).trim().length !== 11) ||
-              (!details.adresa?.ulica && !details.adresa?.kucniBroj && !details.adresa?.mjesto)
-            }
-            onClick={handleConfirm}
-            style={{ minWidth: 180, fontSize: 18, padding: '0.8rem 2.5rem', borderRadius: 8, background: 'rgb(var(--isticanje))', color: 'white', fontWeight: 700, boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}
+            disabled={(() => {
+              const isDisabled =
+                !accepted ||
+                loading ||
+                (Date.now() - lastSubmitTime < 60000) ||
+                (!selectedProgramId && showProgramChooser) ||
+                (showProgramChooser && lessonOptions.length > 0 && !selectedLessonFrequency) ||
+                // Disable if OIB missing/invalid or address entirely empty
+                (!details.oib || String(details.oib).trim().length !== 11) ||
+                (!details.adresa?.ulica && !details.adresa?.kucniBroj && !details.adresa?.mjesto) ||
+                (!details.datumRodjenja) ||
+                (!details.brojMobitela || !/^\+?\d{8,15}$/.test(details.brojMobitela)) ||
+                (isUnderAge && !validateParentsIfNeeded());
+
+              if (isDisabled) {
+                console.log('🚫 Button disabled. Reasons:', {
+                  accepted: !accepted ? '❌ Not accepted' : '✅',
+                  loading: loading ? '❌ Loading' : '✅',
+                  cooldown: (Date.now() - lastSubmitTime < 60000) ? '❌ Cooldown active' : '✅',
+                  noProgramSelected: (!selectedProgramId && showProgramChooser) ? '❌ No program selected' : '✅',
+                  noLessonFrequency: (showProgramChooser && lessonOptions.length > 0 && !selectedLessonFrequency) ? '❌ No lesson frequency' : '✅',
+                  invalidOIB: (!details.oib || String(details.oib).trim().length !== 11) ? '❌ Invalid OIB' : '✅',
+                  noAddress: (!details.adresa?.ulica && !details.adresa?.kucniBroj && !details.adresa?.mjesto) ? '❌ No address' : '✅',
+                  noBirthDate: !details.datumRodjenja ? '❌ No birth date' : '✅',
+                  invalidPhone: (!details.brojMobitela || !/^\+?\d{8,15}$/.test(details.brojMobitela)) ? '❌ Invalid phone' : '✅',
+                  parentsNeeded: (isUnderAge && !validateParentsIfNeeded()) ? '❌ Parents data needed' : '✅'
+                });
+              }
+
+              return isDisabled;
+            })()}
+            onClick={() => {
+              console.log('🖱️ Button clicked!');
+              handleConfirm();
+            }}
+            title={(() => {
+              const isDisabled =
+                !accepted ||
+                loading ||
+                (Date.now() - lastSubmitTime < 60000) ||
+                (!selectedProgramId && showProgramChooser) ||
+                (showProgramChooser && lessonOptions.length > 0 && !selectedLessonFrequency) ||
+                (!details.oib || String(details.oib).trim().length !== 11) ||
+                (!details.adresa?.ulica && !details.adresa?.kucniBroj && !details.adresa?.mjesto) ||
+                (!details.datumRodjenja) ||
+                (!details.brojMobitela || !/^\+?\d{8,15}$/.test(details.brojMobitela)) ||
+                (isUnderAge && !validateParentsIfNeeded());
+
+              return isDisabled ? 'Ispunite sve obavezne podatke kako biste mogli potvrditi upis' : 'Kliknite za potvrdu upisa';
+            })()}
+            style={{
+              minWidth: 180,
+              fontSize: 18,
+              padding: '0.8rem 2.5rem',
+              borderRadius: 8,
+              background: 'rgb(var(--isticanje))',
+              color: 'white',
+              fontWeight: 700,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+              opacity: (() => {
+                const isDisabled =
+                  !accepted ||
+                  loading ||
+                  (Date.now() - lastSubmitTime < 60000) ||
+                  (!selectedProgramId && showProgramChooser) ||
+                  (showProgramChooser && lessonOptions.length > 0 && !selectedLessonFrequency) ||
+                  (!details.oib || String(details.oib).trim().length !== 11) ||
+                  (!details.adresa?.ulica && !details.adresa?.kucniBroj && !details.adresa?.mjesto) ||
+                  (!details.datumRodjenja) ||
+                  (!details.brojMobitela || !/^\+?\d{8,15}$/.test(details.brojMobitela)) ||
+                  (isUnderAge && !validateParentsIfNeeded());
+                return isDisabled ? 0.5 : 1;
+              })(),
+              cursor: (() => {
+                const isDisabled =
+                  !accepted ||
+                  loading ||
+                  (Date.now() - lastSubmitTime < 60000) ||
+                  (!selectedProgramId && showProgramChooser) ||
+                  (showProgramChooser && lessonOptions.length > 0 && !selectedLessonFrequency) ||
+                  (!details.oib || String(details.oib).trim().length !== 11) ||
+                  (!details.adresa?.ulica && !details.adresa?.kucniBroj && !details.adresa?.mjesto) ||
+                  (!details.datumRodjenja) ||
+                  (!details.brojMobitela || !/^\+?\d{8,15}$/.test(details.brojMobitela)) ||
+                  (isUnderAge && !validateParentsIfNeeded());
+                return isDisabled ? 'not-allowed' : 'pointer';
+              })()
+            }}
           >
             {loading ? 'Slanje...' : pendingEnrollment ? 'Čekanje na vezu...' : 'Potvrdi upis'}
           </button>
@@ -988,6 +1202,42 @@ const EnrollmentConfirm = ({ user }) => {
             Učitavanje dostupnih programa...
           </div>
         )}
+        {/* Validation feedback - always visible when button is disabled */}
+        {(() => {
+          const issues = [];
+          if (!accepted) issues.push('Morate prihvatiti uvjete ugovora i suglasnosti');
+          if (!details.oib || String(details.oib).trim().length !== 11) issues.push('OIB mora imati točno 11 znamenki');
+          if (!details.datumRodjenja) issues.push('Datum rođenja je obavezan');
+          if (!details.brojMobitela || !/^\+?\d{8,15}$/.test(details.brojMobitela)) issues.push('Unesite ispravan broj mobitela');
+          if (!details.adresa?.ulica && !details.adresa?.kucniBroj && !details.adresa?.mjesto) issues.push('Unesite barem jedan dio adrese');
+          if (showProgramChooser && !selectedProgramId) issues.push('Odaberite program prije potvrde upisa');
+          if (showProgramChooser && selectedProgramId && lessonOptions.length > 0 && !selectedLessonFrequency) issues.push('Odaberite način pohađanja nastave');
+          if (isUnderAge && !validateParentsIfNeeded()) issues.push('Podaci o roditeljima/skrbnicima su obavezni za maloljetnike');
+
+          if (issues.length === 0) return null;
+
+          return (
+            <div style={{
+              color: '#721c24',
+              background: '#f8d7da',
+              border: '2px solid #f5c6cb',
+              marginTop: 16,
+              padding: '16px',
+              borderRadius: '8px',
+              animation: 'pulse 2s infinite'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', fontSize: '16px', fontWeight: 'bold' }}>
+                <Icon icon="solar:danger-circle-bold" style={{ marginRight: '8px', fontSize: '24px' }} />
+                Za potvrdu upisa potrebno je ispuniti sve uvjete
+              </div>
+              <ul style={{ textAlign: 'left', margin: '8px 0 0 0', paddingLeft: '32px', lineHeight: '1.8' }}>
+                {issues.map((issue, idx) => (
+                  <li key={idx} style={{ marginBottom: '4px' }}>{issue}</li>
+                ))}
+              </ul>
+            </div>
+          );
+        })()}
       </div>
       <div className="auth-legal-notice" style={{ textAlign: 'center', color: 'var(--tekst)', fontSize: 14, marginTop: 24 }}>
         Klikom na "Potvrdi upis" prihvaćate sve uvjete i potvrđujete točnost podataka.

@@ -40,18 +40,31 @@ const PollIndicator = ({ user, polls, onHide }) => {
   const activePollsCount = polls.length;
   const totalResponses = polls.reduce((sum, poll) => sum + (poll.responses?.length || 0), 0);
   
-  const calculateTotalPercentages = () => {
-    let totalYes = 0;
+  const calculateMostPopularOption = () => {
+    // For multi-option polls, calculate the most popular option across all polls
+    const optionCounts = {};
     let totalVotes = 0;
     
     polls.forEach(poll => {
-      const yesVotes = poll.responses?.filter(r => r.response === 'da').length || 0;
-      totalYes += yesVotes;
-      totalVotes += poll.responses?.length || 0;
+      poll.responses?.forEach(response => {
+        optionCounts[response.response] = (optionCounts[response.response] || 0) + 1;
+        totalVotes++;
+      });
     });
     
-    return totalVotes > 0 ? Math.round((totalYes / totalVotes) * 100) : 0;
+    if (totalVotes === 0) return { option: '-', percentage: 0 };
+    
+    const mostPopular = Object.entries(optionCounts).reduce((max, [option, count]) => 
+      count > max.count ? { option, count } : max
+    , { option: '-', count: 0 });
+    
+    return {
+      option: mostPopular.option,
+      percentage: Math.round((mostPopular.count / totalVotes) * 100)
+    };
   };
+  
+  const mostPopularOption = calculateMostPopularOption();
 
   // Check if user has voted and can't change vote anymore
   const canUserStillVote = !user.isMentor && polls.some(poll => {
@@ -96,8 +109,8 @@ const PollIndicator = ({ user, polls, onHide }) => {
                       <span className="stat-value">{totalResponses}</span>
                     </div>
                     <div className="stat-item">
-                      <span className="stat-label">Pozitivni:</span>
-                      <span className="stat-value">{calculateTotalPercentages()}%</span>
+                      <span className="stat-label">Najpopularnije:</span>
+                      <span className="stat-value">{mostPopularOption.option} ({mostPopularOption.percentage}%)</span>
                     </div>
                   </>
                 ) : (
