@@ -6,7 +6,7 @@ const isProd = process.env.NODE_ENV === 'production';
 
 const api = axios.create({
   baseURL: isProd
-    ? 'https://cadenza.com.hr'
+    ? 'https://cadenza-portfolio-server.onrender.com'
     : 'http://localhost:5000',
   headers: {
     'Content-Type': 'application/json'
@@ -211,10 +211,10 @@ const ApiConfig = {
   api,
   cachedApi,
   baseUrl: isProd
-    ? 'https://cadenza.com.hr'
+    ? 'https://cadenza-portfolio-server.onrender.com'
     : 'http://localhost:5000',
   socketUrl: isProd
-    ? 'https://cadenza.com.hr'
+    ? 'https://cadenza-portfolio-server.onrender.com'
     : 'http://localhost:5000',
   setAuthToken,
   invalidateCache

@@ -88,7 +88,7 @@ const ChatContainer = ({
     if (!user?.id || socket) return;
 
     const socketUrl = import.meta.env.PROD
-      ? 'https://cadenza.com.hr'
+      ? 'https://cadenza-portfolio-server.onrender.com'
       : 'http://localhost:5000';
 
     const newSocket = io(socketUrl, {
@@ -414,7 +414,7 @@ const ChatContainer = ({
 
     // Check if this is a call message
     const isCallMessage = message.text && message.text.includes('Incoming video call');
-    
+
     return (
       <div
         className={`message ${isSentByCurrentUser ? 'sent' : 'received'} ${message.isDeleted ? 'deleted' : ''}`}
@@ -627,7 +627,7 @@ const ChatContainer = ({
 
   const formatMessage = (text) => {
     if (!text) return '';
-    
+
     // Special handling for call messages
     if (text.includes('Incoming video call')) {
       return `<div class="call-message-content">
@@ -826,7 +826,7 @@ const ChatContainer = ({
     const styleElement = document.createElement('style');
     styleElement.innerHTML = callMessageStyles;
     document.head.appendChild(styleElement);
-    
+
     return () => {
       document.head.removeChild(styleElement);
     };
