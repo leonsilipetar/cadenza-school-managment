@@ -16,7 +16,9 @@ export const usePosts = () => {
       const response = await ApiConfig.cachedApi.get('/api/posts');
       return response.posts || response.data || response || [];
     },
-    staleTime: 3 * 60 * 1000, // 3 minutes - posts don't change frequently
+    staleTime: 30 * 1000, // 30 seconds - shorter for fresh content
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
+    refetchInterval: 60 * 1000, // Auto-refetch every 60 seconds in background
   });
 };
 
@@ -29,7 +31,8 @@ export const useCreatePost = () => {
       return ApiConfig.api.post('/api/posts', postData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: postKeys.lists() });
+      // Force immediate refetch instead of just invalidating
+      queryClient.refetchQueries({ queryKey: postKeys.lists() });
     },
   });
 };
@@ -40,10 +43,11 @@ export const useUpdatePost = () => {
   
   return useMutation({
     mutationFn: async ({ postId, data }) => {
-      return ApiConfig.api.put(`/api/posts/${postId}`, data);
+      return ApiConfig.api.put(`/api/posts-edit/${postId}`, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: postKeys.lists() });
+      // Force immediate refetch instead of just invalidating
+      queryClient.refetchQueries({ queryKey: postKeys.lists() });
     },
   });
 };
@@ -74,7 +78,8 @@ export const useDeletePost = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: postKeys.lists() });
+      // Force immediate refetch instead of just invalidating
+      queryClient.refetchQueries({ queryKey: postKeys.lists() });
     },
   });
 };

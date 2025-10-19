@@ -909,7 +909,7 @@ const EnrollmentConfirm = ({ user }) => {
         </div>
         <div style={{ marginTop: 8, marginBottom: 16, textAlign: 'center' }}>
           <a
-            href="https://musicartincubator-cadenza.onrender.com/UGOVOR-SUGLASNOST-UPISNICA-2025.-2026-Music-Art-Incubator.pdf"
+            href="https://cadenza.com.hr/UGOVOR-SUGLASNOST-UPISNICA-2025.-2026-Music-Art-Incubator.pdf"
             target="_blank"
             rel="noopener noreferrer"
             style={{ textDecoration: 'underline', color: 'rgb(255, 155, 0)', fontWeight: 600 }}

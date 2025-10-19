@@ -18,24 +18,34 @@ const Welcome = () => {
 
   const features = [
     {
-      icon: 'solar:music-notes-broken',
-      title: 'Glazbeno obrazovanje',
-      description: 'Napredna platforma za učenje glazbe'
+      icon: 'solar:users-group-rounded-broken',
+      title: 'Multi-škola sustav',
+      description: 'Podržava neograničen broj škola na jednoj platformi'
     },
     {
       icon: 'solar:calendar-broken',
       title: 'Raspored nastave',
-      description: 'Organizirano planiranje nastave i događaja'
+      description: 'Jednostavno planiranje nastave i automatski podsjetnici'
     },
     {
       icon: 'solar:chat-line-broken',
       title: 'Komunikacija',
-      description: 'Direktna komunikacija između učenika i mentora'
+      description: 'Chat, obavijesti, ankete i grupne poruke'
+    },
+    {
+      icon: 'solar:bill-list-broken',
+      title: 'Upravljanje računima',
+      description: 'Automatsko generiranje računa i praćenje plaćanja'
     },
     {
       icon: 'solar:document-text-broken',
       title: 'Dokumenti',
-      description: 'Dijeljenje i upravljanje glazbenim materijalima'
+      description: 'Dijeljenje nota, materijala i upisa'
+    },
+    {
+      icon: 'solar:shield-check-broken',
+      title: '100% Besplatno',
+      description: 'Bez pretplate, bez skrivenih troškova'
     }
   ];
 
@@ -50,18 +60,10 @@ const Welcome = () => {
               alt="Cadenza Logo"
               className="auth-main-logo"
             />
-            <a href="https://musicartincubator.com" target="_blank" rel="noopener noreferrer">
-              <img
-                src="/MAI-logo-responsive.png"
-                alt="Music Art Incubator Logo"
-                className="auth-mai-logo"
-              />
-            </a>
           </div>
           <div className="auth-branding">
-            <h1 className="auth-brand-title">Music Art Incubator</h1>
-            <h2 className="auth-app-title">CADENZA</h2>
-            <p className="auth-subtitle">Platforma za glazbeno obrazovanje</p>
+            <h1 className="auth-brand-title">Cadenza</h1>
+            <p className="auth-subtitle">Besplatna platforma za glazbeno obrazovanje</p>
           </div>
         </div>
 
@@ -71,8 +73,9 @@ const Welcome = () => {
             <div className="auth-welcome-text">
               <h3 className="auth-welcome-title">Dobrodošli u Cadenza</h3>
               <p className="auth-welcome-description">
-                Napredna platforma koja povezuje učenike i mentore u glazbenom obrazovanju.
-                Otkrijte nove mogućnosti za učenje i razvoj glazbenih vještina.
+                Besplatna, sveobuhvatna platforma za upravljanje glazbenom školom.
+                Organizirajte nastavu, komunicirajte s učenicima i mentorima, upravljajte računima i dokumentima -
+                sve na jednom mjestu. Bez skrivenih troškova, potpuno besplatno za vaš school.
               </p>
             </div>
 
@@ -91,13 +94,17 @@ const Welcome = () => {
 
             {/* Action Buttons */}
             <div className="auth-welcome-actions">
-              <Link to="/login" className="auth-welcome-btn auth-welcome-btn-primary">
+              <Link to="/school-register" className="auth-welcome-btn auth-welcome-btn-primary">
+                <Icon icon="solar:buildings-2-broken" />
+                Registriraj svoju školu
+              </Link>
+              <Link to="/login" className="auth-welcome-btn auth-welcome-btn-secondary">
                 <Icon icon="solar:login-2-broken" />
                 Prijavi se
               </Link>
-              <Link to="/signup" className="auth-welcome-btn auth-welcome-btn-secondary">
+              <Link to="/signup" className="auth-welcome-btn auth-welcome-btn-outline">
                 <Icon icon="solar:user-plus-broken" />
-                Registriraj se
+                Registracija učenika
               </Link>
             </div>
 
@@ -108,15 +115,9 @@ const Welcome = () => {
                 <span>Sigurna i pouzdana platforma</span>
               </div>
               <p className="auth-welcome-note">
-                Ova aplikacija je razvijena isključivo za potrebe glazbene škole{' '}
-                <a
-                  href="https://www.musicartincubator.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="auth-welcome-link"
-                >
-                  Music Art Incubator
-                </a>
+                Cadenza je generička platforma za upravljanje glazbenim školama.
+                Bilo da vodite malu privatnu školu ili veliku instituciju, Cadenza vam omogućuje
+                kompletno digitalno upravljanje - potpuno besplatno.
               </p>
             </div>
           </div>
@@ -130,12 +131,12 @@ const Welcome = () => {
             </Link>
             <span className="auth-footer-separator">|</span>
             <a
-              href="https://www.musicartincubator.com"
+              href="https://cadenza.com.hr"
               target="_blank"
               rel="noopener noreferrer"
               className="auth-footer-link"
             >
-              musicartincubator.com
+              cadenza.com.hr
             </a>
           </div>
         </div>

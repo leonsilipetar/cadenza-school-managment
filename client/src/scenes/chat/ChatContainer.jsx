@@ -88,7 +88,7 @@ const ChatContainer = ({
     if (!user?.id || socket) return;
 
     const socketUrl = import.meta.env.PROD
-      ? 'https://musicartincubator-cadenza.onrender.com'
+      ? 'https://cadenza.com.hr'
       : 'http://localhost:5000';
 
     const newSocket = io(socketUrl, {

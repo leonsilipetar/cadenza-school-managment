@@ -61,7 +61,7 @@ const setupInitialData = async () => {
 
     // Create schools
     const schoolVK = await School.create({
-      name: 'Music Art Incubator Vinkovci',
+      name: 'Cadenza Vinkovci',
       street: 'Duga ulica',
       location: 'Vinkovci',
       active: true,
@@ -72,7 +72,7 @@ const setupInitialData = async () => {
     });
 
     const schoolVLP = await School.create({
-      name: 'Music Art Incubator Valpovo',
+      name: 'Cadenza Valpovo',
       street: 'Glavna ulica',
       location: 'Valpovo',
       active: true,

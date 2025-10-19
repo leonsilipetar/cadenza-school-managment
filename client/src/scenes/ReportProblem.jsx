@@ -3,7 +3,6 @@ import { Icon } from '@iconify/react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import ApiConfig from '../components/apiConfig';
-import { sendAnalytics } from '../utils/analytics';
 import './ReportProblem.css';
 
 const ReportProblem = () => {
@@ -232,27 +231,11 @@ Timestamp: ${new Date().toISOString()}
         ApiConfig.api.post('/api/error/report', { errorData })
       ]);
 
-      // Track this as a feature usage
-      await sendAnalytics('report_problem', {
-        category: formData.category,
-        subcategory: formData.subcategory,
-        userRole: userRole,
-        isPWA: deviceInfo.isPWA,
-        platform: deviceInfo.platform
-      });
-
       // Show success message and navigate back
       alert('Hvala na prijavi problema. Naš tim će ga pregledati što prije.');
       navigate(-1);
     } catch (error) {
       console.error('Error submitting problem report:', error);
-      
-      // Track failed submissions
-      await sendAnalytics('report_problem_failed', {
-        errorMessage: error.message,
-        userRole: user.isAdmin ? 'Mentor-Admin' : (user.isMentor ? 'Mentor' : 'Student')
-      });
-      
       alert('Došlo je do greške pri slanju prijave. Molimo pokušajte ponovno.');
     }
   };

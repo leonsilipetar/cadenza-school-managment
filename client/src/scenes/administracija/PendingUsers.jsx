@@ -67,7 +67,7 @@ const PendingUsers = () => {
       oib: pu.oib || null,
       datumRodjenja: pu.datumRodjenja || null,
       pohadjaTeoriju: !!pu.pohadjaTeoriju,
-      maiZbor: !!pu.maiZbor,
+      customAttributes: pu.customAttributes || {},
       maloljetniClan: !!pu.maloljetniClan,
       roditelj1,
       roditelj2,

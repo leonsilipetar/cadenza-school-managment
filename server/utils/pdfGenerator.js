@@ -277,7 +277,7 @@ const generateEnrollmentConfirmationPDF = async (user, invoiceSettings, enrollme
 
       // School info from invoice settings (preferred) on the left header
       const s = invoiceSettings || {};
-      const schoolTitle = s.nazivObrta || user.school?.name || 'Music Art Incubator';
+      const schoolTitle = s.nazivObrta || user.school?.name || 'Cadenza';
       const addrLine = s.address || '';
       const cityLine = [s.postalCode, s.city].filter(Boolean).join(' ');
       const oibLine = s.oib ? `OIB: ${s.oib}` : '';
@@ -410,7 +410,7 @@ module.exports.generateEnrollmentConfirmationPDFMulti = async (entries) => {
 
         // School details left header
         const s = invoiceSettings || {};
-        const schoolTitle = s.nazivObrta || user.school?.name || 'Music Art Incubator';
+        const schoolTitle = s.nazivObrta || user.school?.name || 'Cadenza';
         const addrLine = s.address || '';
         const cityLine = [s.postalCode, s.city].filter(Boolean).join(' ');
         const oibLine = s.oib ? `OIB: ${s.oib}` : '';

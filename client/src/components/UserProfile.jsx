@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import { Icon } from '@iconify/react';
 import ApiConfig from './apiConfig';
 import LoadingShell from './LoadingShell';
@@ -9,6 +9,8 @@ const UserProfile = memo(({ userId, loggedInUser, onClose }) => {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
+  const fetchingPictureRef = useRef(false);
+  const fetchedPictureUserIdRef = useRef(null);
 
   // Check if logged-in user has permission to view sensitive data
   const canViewSensitiveData = loggedInUser && (loggedInUser.isAdmin || loggedInUser.isMentor || loggedInUser.id === userId);
@@ -31,14 +33,24 @@ const UserProfile = memo(({ userId, loggedInUser, onClose }) => {
           }
         }
 
-        // Fetch profile picture
-        try {
-          const pictureResponse = await ApiConfig.cachedApi.get(`/api/profile-picture/${userId}`, { headers: { 'Cache-Control': 'no-cache' } });
-          if (pictureResponse?.success && pictureResponse?.profilePicture) {
-            setProfilePicture(pictureResponse.profilePicture);
+        // Fetch profile picture (only if not already fetching/fetched for this user)
+        if (!fetchingPictureRef.current && fetchedPictureUserIdRef.current !== userId) {
+          fetchingPictureRef.current = true;
+          try {
+            const pictureResponse = await ApiConfig.cachedApi.get(`/api/profile-picture/${userId}`, { headers: { 'Cache-Control': 'no-cache' } });
+            if (pictureResponse?.success && pictureResponse?.profilePicture) {
+              setProfilePicture(pictureResponse.profilePicture);
+            }
+            fetchedPictureUserIdRef.current = userId;
+          } catch (pictureError) {
+            // Silently handle 404 (no profile picture)
+            if (pictureError?.response?.status !== 404) {
+              console.error('Error fetching profile picture:', pictureError);
+            }
+            fetchedPictureUserIdRef.current = userId;
+          } finally {
+            fetchingPictureRef.current = false;
           }
-        } catch (pictureError) {
-          console.error('Error fetching profile picture:', pictureError);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);

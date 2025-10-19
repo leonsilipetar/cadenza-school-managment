@@ -9,6 +9,7 @@ import Link from '@tiptap/extension-link';
 import { Node } from '@tiptap/core';
 import _ from 'lodash';
 import Modal from './Modal';
+import { useCreatePost } from '../hooks/usePosts';
 
 // Add this line to ensure credentials are sent with requests
 ApiConfig.api.defaults.withCredentials = true;
@@ -165,15 +166,16 @@ const TiptapEditor = ({ content, onUpdate, editable }) => {
 };
 
 const PostEditor = ({ onClose, onSave }) => {
+  const createPost = useCreatePost();
   const [formData, setFormData] = useState({
     title: '',
     visibility: 'public',
     showAllSchools: false
   });
   const [editorContent, setEditorContent] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
   const [notification, setNotification] = useState(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const isSaving = createPost.isPending;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -199,11 +201,9 @@ const PostEditor = ({ onClose, onSave }) => {
       return;
     }
 
-    setIsSaving(true);
-
     try {
       console.log('Creating new post');
-      const response = await ApiConfig.api.post('/api/posts', {
+      const response = await createPost.mutateAsync({
         ...formData,
         content: editorContent
       });
@@ -226,8 +226,6 @@ const PostEditor = ({ onClose, onSave }) => {
         type: 'error',
         message: error.response?.data?.message || 'Greška pri kreiranju objave'
       });
-    } finally {
-      setIsSaving(false);
     }
   };
 

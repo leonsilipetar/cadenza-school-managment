@@ -136,19 +136,19 @@ const About = () => {
             <p>
               Ova aplikacija je razvijena isključivo za potrebe glazbene škole
               <a
-                href="https://www.musicartincubator.com"
+                href="https://cadenza.com.hr"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mai-link"
               >
-                Music Art Incubator
+                Cadenza
               </a>
               koja ima pravo korištenja kao pilot škola.
             </p>
             <img
-              src="/MAI-logo-responsive.png"
-              alt="Music Art Incubator Logo"
-              style={{ height: '40px' }}
+              src="/logo512.png"
+              alt="Cadenza Logo"
+              style={{ height: '50px' }}
             />
           </div>
         </div>
@@ -162,7 +162,7 @@ const About = () => {
             <h3 style={{ margin: '0 0 1rem 0', color: 'rgb(var(--isticanje))' }}>Autorska prava i vlasništvo</h3>
             <p style={{ marginBottom: '0.75rem' }}>
               Cadenza je moderna web aplikacija <strong>razvijena i održavana od strane privatnog developera Leon Šilipetar (Ariaframe)</strong>.
-              Sustav je namijenjen isključivo za interne potrebe glazbene škole Music Art Incubator i povezanih obrazovnih ustanova.
+              Sustav je namijenjen isključivo za interne potrebe glazbene škole Cadenza i povezanih obrazovnih ustanova.
             </p>
             <p style={{ marginBottom: '0.75rem' }}>
               <strong>Škola ima pravo korištenja sustava kao pilot škola</strong>, ali <strong>sva autorska i intelektualna prava</strong> nad 
@@ -287,7 +287,7 @@ const About = () => {
 
           <h3>Ograničenje odgovornosti</h3>
           <ul>
-            <li>Music Art Incubator d.o.o. nije odgovoran za sadržaj koji dijele korisnici</li>
+            <li>Cadenza d.o.o. nije odgovoran za sadržaj koji dijele korisnici</li>
             <li>Zadržavamo pravo izmjene uvjeta korištenja uz prethodnu obavijest</li>
             <li>Zadržavamo pravo ograničavanja pristupa u slučaju kršenja uvjeta korištenja</li>
           </ul>

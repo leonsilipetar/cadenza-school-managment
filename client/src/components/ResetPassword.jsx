@@ -72,22 +72,14 @@ const ResetPassword = () => {
         <div className="auth-header">
           <div className="auth-logo-section">
             <img
-              src="/logo225.png"
+              src="/logo512.png"
               alt="Cadenza Logo"
               className="auth-main-logo"
             />
-            <a href="https://musicartincubator.com" target="_blank" rel="noopener noreferrer">
-              <img
-                src="/MAI-logo-responsive.png"
-                alt="Music Art Incubator Logo"
-                className="auth-mai-logo"
-              />
-            </a>
           </div>
           <div className="auth-branding">
-            <h1 className="auth-brand-title">Music Art Incubator</h1>
-            <h2 className="auth-app-title">CADENZA</h2>
-            <p className="auth-subtitle">Platforma za glazbeno obrazovanje</p>
+            <h1 className="auth-brand-title">Cadenza</h1>
+            <p className="auth-subtitle">Resetiranje lozinke</p>
           </div>
         </div>
 
@@ -215,12 +207,12 @@ const ResetPassword = () => {
             </Link>
             <span className="auth-footer-separator">|</span>
             <a 
-              href="https://www.musicartincubator.com" 
+              href="https://cadenza.com.hr" 
               target="_blank" 
               rel="noopener noreferrer"
               className="auth-footer-link"
             >
-              musicartincubator.com
+              cadenza.com.hr
             </a>
           </div>
         </div>

@@ -9,7 +9,6 @@ import ApiConfig from '../components/apiConfig.js';
 import { getFCMToken } from '../firebase-config.js';
 import { Icon } from '@iconify/react';
 import logo512 from '../assets/logo512.png';
-import maiLogo from '../assets/MAI Logo.png';
 
 const Login = ({ isEmbedded = false }) => {
   const dispatch = useDispatch();
@@ -142,18 +141,10 @@ const Login = ({ isEmbedded = false }) => {
               alt="Cadenza Logo"
               className="auth-main-logo"
             />
-            <a href="https://musicartincubator.com" target="_blank" rel="noopener noreferrer">
-              <img
-                src={maiLogo}
-                alt="Music Art Incubator Logo"
-                className="auth-mai-logo"
-              />
-            </a>
           </div>
           <div className="auth-branding">
-            <h1 className="auth-brand-title">Music Art Incubator</h1>
-            <h2 className="auth-app-title">CADENZA</h2>
-            <p className="auth-subtitle">Platforma za glazbeno obrazovanje</p>
+            <h1 className="auth-brand-title">Cadenza</h1>
+            <p className="auth-subtitle">Dobrodošli natrag!</p>
           </div>
         </div>
 
@@ -270,12 +261,12 @@ const Login = ({ isEmbedded = false }) => {
             </Link>
             <span className="auth-footer-separator">|</span>
             <a 
-              href="https://www.musicartincubator.com" 
+              href="https://cadenza.com.hr" 
               target="_blank" 
               rel="noopener noreferrer"
               className="auth-footer-link"
             >
-              musicartincubator.com
+              cadenza.com.hr
             </a>
           </div>
         </div>

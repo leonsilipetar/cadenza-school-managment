@@ -13,7 +13,7 @@ export const chatKeys = {
 };
 
 // Hook to fetch all chats
-export const useChats = () => {
+export const useChats = (enabled = true) => {
   return useQuery({
     queryKey: chatKeys.lists(),
     queryFn: async () => {
@@ -21,6 +21,7 @@ export const useChats = () => {
       return Array.isArray(response.data) ? response.data : [];
     },
     staleTime: 30 * 1000, // 30 seconds for chats (frequently updated)
+    enabled: enabled, // Only fetch when enabled (user is logged in)
     onError: (error) => {
       console.error('Error fetching chats:', error);
     },
@@ -29,7 +30,7 @@ export const useChats = () => {
 
 // Hook to calculate unread count from chats
 export const useUnreadCount = (user) => {
-  const { data: chats = [] } = useChats();
+  const { data: chats = [] } = useChats(!!user); // Only fetch chats if user exists
   
   return useMemo(() => {
     if (!chats || !Array.isArray(chats) || !user) return 0;

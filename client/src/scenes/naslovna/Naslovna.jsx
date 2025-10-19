@@ -13,16 +13,22 @@ import { showNotification } from '../../components/Notifikacija';
 import { useNavigate, useLocation } from 'react-router-dom';
 import moment from 'moment';
 import Modal from '../../components/Modal';
-import { usePosts } from '../../hooks/usePosts';
+import { usePosts, useDeletePost } from '../../hooks/usePosts';
+import { useQueryClient } from '@tanstack/react-query';
 
 axios.defaults.withCredentials = true;
 
-const Naslovna = ({ user, unreadChatsCount, activePolls = [] }) => {
+const Naslovna = ({ user, unreadChatsCount }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
   // REACT QUERY: Use hook for posts - automatic caching and updates!
-  const { data: posts = [], isLoading: loading } = usePosts();
+  const { data: posts = [], isLoading: loading, refetch: refetchPosts, isFetching: isRefetchingPosts } = usePosts();
+  const deletePost = useDeletePost();
+  const queryClient = useQueryClient();
+  
+  // Local state for polls (temporary until we create usePolls hook)
+  const [activePolls, setActivePolls] = useState([]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -59,8 +65,21 @@ const Naslovna = ({ user, unreadChatsCount, activePolls = [] }) => {
 
   const otvoreno = 'naslovna';
 
-  // REACT QUERY: No more manual fetching! Posts load automatically
-  // Removed fetchPosts and useEffect - React Query handles it
+  // Fetch active polls on mount
+  useEffect(() => {
+    const fetchPolls = async () => {
+      try {
+        const response = await ApiConfig.api.get('/api/polls/active');
+        setActivePolls(response.data.polls || []);
+      } catch (error) {
+        console.error('Error fetching polls:', error);
+      }
+    };
+    
+    if (user && (user.isMentor || user.pohadjaTeoriju)) {
+      fetchPolls();
+    }
+  }, [user]);
 
   const isExpired = (endDate) => {
     return new Date(endDate) <= new Date();
@@ -94,7 +113,8 @@ const Naslovna = ({ user, unreadChatsCount, activePolls = [] }) => {
   };
 
   const handlePostSaved = async () => {
-    await fetchPosts(); // Refresh posts after saving
+    // React Query automatically refreshes after mutations
+    queryClient.invalidateQueries({ queryKey: ['posts', 'list'] });
   };
 
   const handleDeletePost = async (postId) => {
@@ -103,9 +123,8 @@ const Naslovna = ({ user, unreadChatsCount, activePolls = [] }) => {
     }
 
     try {
-      await ApiConfig.api.delete(`/api/posts/${postId}`);
+      await deletePost.mutateAsync(postId);
       showNotification('success', 'Objava uspješno obrisana');
-      await fetchPosts();
     } catch (error) {
       console.error('Error deleting post:', error);
       showNotification('error', error.response?.data?.message || 'Greška pri brisanju objave');
@@ -263,6 +282,15 @@ const Naslovna = ({ user, unreadChatsCount, activePolls = [] }) => {
         <div className="karticaZadatka posts">
           <div className="notification-filters">
             <button
+              className={`filter-btn ${isRefetchingPosts ? 'active' : ''}`}
+              onClick={() => refetchPosts()}
+              title="Osvježi objave"
+              disabled={isRefetchingPosts}
+            >
+              <Icon icon={isRefetchingPosts ? "solar:loading-bold-duotone" : "solar:refresh-broken"} className={isRefetchingPosts ? "spin" : ""} />
+              {isRefetchingPosts ? 'Učitavanje...' : 'Osvježi'}
+            </button>
+            <button
               className={`filter-btn ${activeTab === 'search' ? 'active' : ''}`}
               onClick={() => setActiveTab('search')}
             >
@@ -293,31 +321,32 @@ const Naslovna = ({ user, unreadChatsCount, activePolls = [] }) => {
               Ankete {activePolls.length > 0 && <span className="poll-count">{activePolls.length}</span>}
             </button>
             <button className={`filter-btn`}>
-              <a href="https://musicartincubator.com" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '.35rem' }}>
+              <a href="https://cadenza.com.hr" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '.35rem' }}>
                 <Icon icon="solar:link-broken" />
-                Posjeti musicartincubator.com
+                Posjeti cadenza.com.hr
               </a>
             </button>
           </div>
-
-          {user?.isMentor && activeTab === 'polls' && (
-            <button
-              className="floating-action-btn"
-              onClick={() => setShowPollForm(true)}
-            >
-              <Icon icon="solar:add-circle-broken" />
-            </button>
-          )}
-
-          {user?.isMentor && activeTab !== 'polls' && (
-            <button
-              className="floating-action-btn"
-              onClick={handleCreatePost}
-            >
-              <Icon icon="solar:add-circle-broken" />
-            </button>
-          )}
         </div>
+
+        {/* Floating action button - OUTSIDE karticaZadatka to prevent hover issues */}
+        {user?.isMentor && activeTab === 'polls' && (
+          <button
+            className="floating-action-btn"
+            onClick={() => setShowPollForm(true)}
+          >
+            <Icon icon="solar:add-circle-broken" />
+          </button>
+        )}
+
+        {user?.isMentor && activeTab !== 'polls' && activeTab !== 'search' && (
+          <button
+            className="floating-action-btn"
+            onClick={handleCreatePost}
+          >
+            <Icon icon="solar:add-circle-broken" />
+          </button>
+        )}
 
         {loading ? (
           <div className="popup">

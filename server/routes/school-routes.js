@@ -6,12 +6,16 @@ const {
     createSchool,
     updateSchool,
     deleteSchool,
-    getSchoolStats
+    getSchoolStats,
+    registerSchool
 } = require('../controllers/school-controller');
 
 const router = express.Router();
 
-// School routes
+// PUBLIC ROUTE - School self-registration
+router.post('/schools/register', registerSchool); // NO verifyToken - public access
+
+// Protected school routes (require authentication)
 router.get('/schools', verifyToken, getSchools);
 router.get('/schools/:id', verifyToken, getSchoolById);
 router.post('/schools', verifyToken, createSchool);

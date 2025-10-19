@@ -131,7 +131,7 @@ const signup = async (req, res) => {
       oib,
       datumRodjenja,
       pohadjaTeoriju,
-      maiZbor,
+      customAttributes,
       maloljetniClan,
       roditelj1,
       roditelj2,
@@ -202,7 +202,7 @@ const signup = async (req, res) => {
         roditelj1,
         roditelj2,
         pohadjaTeoriju: pohadjaTeoriju || false,
-        maiZbor: Boolean(maiZbor) || false,
+        customAttributes: customAttributes || {},
         napomene: sanitizedNotesArray,
         maloljetniClan: maloljetniClan || false,
         schoolId: schoolId || 1,
@@ -972,13 +972,13 @@ const sendPasswordEmail = async (email, password, korisnickoIme) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
-    subject: 'Dobrodošli u MAI - Cadenza platformu - Detalji vašeg računa',
+    subject: 'Dobrodošli u Cadenza platformu - Detalji vašeg računa',
     html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd;">
       <!-- Header section with logo -->
       <div style="text-align: center;">
-        <img src="https://cadenza.com.hr/logo512.png" alt="MAI - Cadenza Logo" style="max-width: 150px;" />
-        <h1 style="color: rgb(252, 163, 17); font-size: 24px;">Dobrodošli u MAI - Cadenza!</h1>
+        <img src="https://cadenza.com.hr/logo512.png" alt="Cadenza Logo" style="max-width: 150px;" />
+        <h1 style="color: rgb(252, 163, 17); font-size: 24px;">Dobrodošli na Cadenza platformu!</h1>
       </div>
 
       <!-- Email introduction -->
@@ -1013,7 +1013,7 @@ const sendPasswordEmail = async (email, password, korisnickoIme) => {
        <!-- Support and closing -->
         <p>Molimo vas da čuvate ove informacije i ne dijelite lozinku. Ako imate bilo kakvih pitanja ili nedoumica, slobodno se obratite na adresu za podršku: <a href="mailto:app.info.cadenza@gmail.com">app.info.cadenza@gmail.com</a>.</p>
 
-      <p>S poštovanjem,<br />MAI - Cadenza</p>
+      <p>S poštovanjem,<br />Cadenza</p>
     </div>
 
     <!-- Styling for hover effect -->
@@ -1092,7 +1092,7 @@ const sendEnrollmentReminders = async (req, res) => {
         bodyHtml = `<p>${safe}</p>`;
       } else {
         bodyHtml = `
-          <p>Ukoliko i dalje želite nastaviti s vašim glazbenim obrazovanjem u Glazbenom centru MAI, molimo vas da dovršite proces upisa na Cadenza platformi:</p>
+          <p>Ukoliko i dalje želite nastaviti s vašim glazbenim obrazovanjem u školi , molimo vas da dovršite proces upisa na Cadenza platformi:</p>
           <ul>
             <li>Prijavite se na <a href="https://cadenza.com.hr/login">Cadenza</a></li>
             <li>Prihvatite uvjete upisa</li>
@@ -1103,13 +1103,13 @@ const sendEnrollmentReminders = async (req, res) => {
       return `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd;">
           <div style="text-align: center;">
-            <img src="https://cadenza.com.hr/logo512.png" alt="MAI - Cadenza Logo" style="max-width: 150px;" />
+            <img src="https://cadenza.com.hr/logo512.png" alt="Cadenza Logo" style="max-width: 150px;" />
             <h1 style="color: rgb(252, 163, 17); font-size: 22px;">Podsjetnik: dovršite upis</h1>
           </div>
           <p>${greeting}</p>
           ${bodyHtml}
           <p>Za pomoć, javite se na <a href="mailto:app.info.cadenza@gmail.com">app.info.cadenza@gmail.com</a>.</p>
-          <p>Hvala!<br/>MAI - Cadenza</p>
+          <p>Hvala!<br/>Cadenza</p>
         </div>
       `;
     };
@@ -1119,7 +1119,7 @@ const sendEnrollmentReminders = async (req, res) => {
         const mailOptions = {
           from: process.env.EMAIL_USER,
           to: user.email,
-          subject: 'Podsjetnik: dovršite upis u školsku godinu 2025/2026 - Music Art Incubator',
+          subject: 'Podsjetnik: dovršite upis u školsku godinu 2025/2026 - Cadenza',
           html: composeHtml(user.ime, user.prezime)
         };
 
@@ -1195,12 +1195,12 @@ const updatePassword = asyncWrapper(async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: 'Nova lozinka - Music Art Incubator',
+      subject: 'Nova lozinka - Cadenza',
       html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd;">
         <!-- Header section with logo -->
         <div style="text-align: center;">
-          <img src="https://cadenza.com.hr/logo512.png" alt="MAI - Cadenza Logo" style="max-width: 150px;" />
+          <img src="https://cadenza.com.hr/logo512.png" alt="Cadenza Logo" style="max-width: 150px;" />
           <h1 style="color: rgb(252, 163, 17); font-size: 24px;">Nova lozinka za vaš račun</h1>
         </div>
 
@@ -1233,7 +1233,7 @@ const updatePassword = asyncWrapper(async (req, res) => {
         <!-- Support and closing -->
         <p>Molimo vas da čuvate ove informacije i ne dijelite lozinku. Ako imate bilo kakvih pitanja ili nedoumica, slobodno se obratite na adresu za podršku: <a href="mailto:app.info.cadenza@gmail.com">app.info.cadenza@gmail.com</a>.</p>
 
-        <p>S poštovanjem,<br />MAI - Cadenza</p>
+        <p>S poštovanjem,<br />Cadenza</p>
       </div>
 
       <!-- Styling for hover effect -->
@@ -1672,7 +1672,7 @@ const commitBulkUsers = async (req, res) => {
             roditelj1: u.roditelj1 || null,
             roditelj2: u.roditelj2 || null,
             pohadjaTeoriju: false,
-            maiZbor: false,
+            customAttributes: {},
             napomene: [],
             maloljetniClan: false,
             schoolId: u.schoolId || schoolId || 1,

@@ -41,16 +41,33 @@ const enrollmentRoutes = require('./routes/enrollment-routes');
 require('dotenv').config();
 
 const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://musicartincubator-cadenza.onrender.com', 'https://cadenza.com.hr']
-  : ['http://localhost:5173'];
+  ? ['https://cadenza.com.hr', 'https://demo.cadenza.com.hr']
+  : ['http://localhost:5173', 'http://localhost:3000'];
 
 const app = express();
 const compression = require('compression');
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? 'https://cadenza.com.hr'
-    : 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // In production, only allow cadenza.com.hr and its subdomains
+    if (process.env.NODE_ENV === 'production') {
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    } else {
+      // In development, allow localhost origins
+      if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        callback(null, true);
+      } else {
+        callback(null, true); // Allow all in development
+      }
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'Pragma', 'Expires']

@@ -59,24 +59,11 @@
   filter: brightness(0) invert(1);
 }
 
-.auth-mai-logo {
-  height: 40px;
-  width: auto;
-  filter: brightness(0) invert(1);
-}
-
 .auth-branding {
   text-align: center;
 }
 
 .auth-brand-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
-  font-family: "fNaslovi", sans-serif;
-}
-
-.auth-app-title {
   font-size: 2.5rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
@@ -891,10 +878,6 @@ textarea.auth-signup-input {
   }
   
   .auth-brand-title {
-    font-size: 1.25rem;
-  }
-  
-  .auth-app-title {
     font-size: 2rem;
   }
   
@@ -910,10 +893,6 @@ textarea.auth-signup-input {
   
   .auth-main-logo {
     height: 50px;
-  }
-  
-  .auth-mai-logo {
-    height: 35px;
   }
   
   .auth-features-grid {
@@ -959,10 +938,6 @@ textarea.auth-signup-input {
   }
   
   .auth-brand-title {
-    font-size: 1.1rem;
-  }
-  
-  .auth-app-title {
     font-size: 1.75rem;
   }
   
@@ -974,10 +949,6 @@ textarea.auth-signup-input {
   
   .auth-main-logo {
     height: 45px;
-  }
-  
-  .auth-mai-logo {
-    height: 30px;
   }
   
   .auth-footer-links {

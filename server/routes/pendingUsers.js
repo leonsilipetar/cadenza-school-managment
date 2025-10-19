@@ -88,7 +88,7 @@ router.post('/signup/pending', pendingUserLimiter, async (req, res) => {
       schoolId,
       recaptchaToken,
       brojMobitela,
-      maiZbor,
+      customAttributes,
       pohadanjeNastave
     } = req.body;
 
@@ -123,7 +123,7 @@ router.post('/signup/pending', pendingUserLimiter, async (req, res) => {
       maloljetniClan,
       schoolId,
       brojMobitela,
-      maiZbor,
+      customAttributes,
       pohadanjeNastave,
       status: 'pending',
       updatedAt: now
@@ -196,7 +196,7 @@ router.post('/signup/pending', pendingUserLimiter, async (req, res) => {
         secure: false,
         requireTLS: true,
         auth: {
-          user: process.env.EMAIL_USER || 'musicartincubator@gmail.com',
+          user: process.env.EMAIL_USER || 'leonosobni@gmail.com',
           pass: process.env.EMAIL_PASS,
         },
         secureOptions: 'TLSv1_2',
@@ -206,7 +206,7 @@ router.post('/signup/pending', pendingUserLimiter, async (req, res) => {
       const school = await School.findByPk(schoolId, { attributes: ['name'] });
       const adminMail = {
         from: process.env.EMAIL_USER,
-        to: 'musicartincubator@gmail.com',
+        to: 'leonosobni@gmail.com',
         subject: 'Novi zahtjev za registraciju (Cadenza)',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd;">
@@ -227,7 +227,7 @@ router.post('/signup/pending', pendingUserLimiter, async (req, res) => {
       const userMail = {
         from: process.env.EMAIL_USER,
         to: email,
-        subject: 'Vaša prijava je zaprimljena - Music Art Incubator',
+        subject: 'Vaša prijava je zaprimljena - Cadenza',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd;">
             <div style="text-align: center;">

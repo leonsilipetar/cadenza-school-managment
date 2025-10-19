@@ -6,7 +6,7 @@ CORE SYSTEM INFORMATION
 Type: Progressive Web Application (PWA)
 Stack: PERN (PostgreSQL, Express, React, Node.js)
 Target Users: Music schools, mentors, and students
-Distribution: Three private music schools (Music art incubator)
+Distribution: Three private music schools
 
 PROJECT SCOPE
 ------------

@@ -111,10 +111,11 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     pohadjaTeoriju: { type: DataTypes.BOOLEAN, allowNull: true, defaultValue: false },
-    maiZbor: {
-      type: DataTypes.BOOLEAN,
+    customAttributes: {
+      type: DataTypes.JSONB,
       allowNull: true,
-      defaultValue: false
+      defaultValue: {},
+      comment: 'Flexible JSON field for school-specific custom attributes (e.g., choir membership, ensembles, special programs)'
     },
     napomene: { type: DataTypes.ARRAY(DataTypes.TEXT), defaultValue: [] },
     maloljetniClan: {

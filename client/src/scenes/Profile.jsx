@@ -104,49 +104,56 @@ const Profile = ({ user, unreadChatsCount }) => {
     return () => { mounted = false; };
   }, []);
 
-  // Color presets
+  // Color presets (synced with App.css - modern colors)
   const colorPresets = {
-    default: {
-      isticanje: '255, 155, 0',
-      isticanje2: '220, 220, 220',
-      isticanje3: '50, 60, 140',
-      pozadina: '240, 240, 240'
+    teal: {
+      name: 'Teal (Default)',
+      isticanje: '20, 184, 166',
+      isticanje2: '203, 213, 225',
+      isticanje3: '6, 182, 212',
+      pozadina: '248, 250, 252'
     },
     blue: {
-      isticanje: '0, 122, 255',
-      isticanje2: '200, 220, 240',
-      isticanje3: '30, 50, 120',
-      pozadina: '235, 240, 245'
+      name: 'Plava',
+      isticanje: '59, 130, 246',
+      isticanje2: '191, 219, 254',
+      isticanje3: '37, 99, 235',
+      pozadina: '239, 246, 255'
     },
     purple: {
-      isticanje: '150, 103, 224',
-      isticanje2: '210, 210, 230',
-      isticanje3: '70, 50, 130',
-      pozadina: '245, 240, 250'
+      name: 'Ljubičasta',
+      isticanje: '139, 92, 246',
+      isticanje2: '221, 214, 254',
+      isticanje3: '124, 58, 237',
+      pozadina: '250, 245, 255'
     },
     green: {
-      isticanje: '132, 169, 140',
-      isticanje2: '210, 225, 215',
-      isticanje3: '40, 70, 50',
-      pozadina: '240, 245, 242'
+      name: 'Zelena',
+      isticanje: '16, 185, 129',
+      isticanje2: '209, 250, 229',
+      isticanje3: '5, 150, 105',
+      pozadina: '240, 253, 244'
     },
-    coral: {
-      isticanje: '255, 127, 80',
-      isticanje2: '230, 210, 200',
-      isticanje3: '100, 50, 30',
-      pozadina: '245, 240, 235'
+    orange: {
+      name: 'Narančasta (Legacy)',
+      isticanje: '249, 115, 22',
+      isticanje2: '254, 215, 170',
+      isticanje3: '255, 155, 0',
+      pozadina: '255, 247, 237'
     },
-    teal: {
-      isticanje: '0, 128, 128',
-      isticanje2: '200, 220, 220',
-      isticanje3: '30, 70, 70',
-      pozadina: '235, 245, 245'
+    red: {
+      name: 'Crvena',
+      isticanje: '239, 68, 68',
+      isticanje2: '254, 202, 202',
+      isticanje3: '220, 38, 38',
+      pozadina: '254, 242, 242'
     },
     rose: {
+      name: 'Rose',
       isticanje: '255, 105, 180',
-      isticanje2: '230, 210, 220',
-      isticanje3: '100, 40, 70',
-      pozadina: '250, 240, 245'
+      isticanje2: '252, 231, 243',
+      isticanje3: '219, 39, 119',
+      pozadina: '253, 242, 248'
     }
   };
 
@@ -159,9 +166,9 @@ const Profile = ({ user, unreadChatsCount }) => {
       pozadina: localStorage.getItem('pozadina')
     };
 
-    // If no saved colors, use default preset
+    // If no saved colors, use teal preset (new default)
     if (!savedColors.isticanje) {
-      return colorPresets.default;
+      return colorPresets.teal;
     }
 
     return savedColors;
@@ -302,7 +309,7 @@ const Profile = ({ user, unreadChatsCount }) => {
                     }}
                   >
                     <span className="preset-name">
-                      {name.charAt(0).toUpperCase() + name.slice(1)}
+                      {colors.name || name.charAt(0).toUpperCase() + name.slice(1)}
                     </span>
                   </button>
                 ))}

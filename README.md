@@ -4,7 +4,7 @@ A comprehensive Progressive Web Application for music school management, built w
 
 ## 🎯 Project Overview
 
-Cadenza is a sophisticated music education management system designed for a network of three private music schools (Music art incubator). The platform facilitates seamless interaction between administrators, mentors, and students while providing robust tools for educational resource management and financial tracking.
+Cadenza is a sophisticated music education management system designed for a network of private music schools. The platform facilitates seamless interaction between administrators, mentors, and students while providing robust tools for educational resource management and financial tracking.
 
 ### Key Statistics
 - **Total Files**: 260

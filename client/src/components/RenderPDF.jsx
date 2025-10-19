@@ -58,7 +58,7 @@ const RenderPDF = ({ invoice, school, student, program, onReady, onProgress }) =
           const qrData = [
             'www.e-URA.hr',
             '01',
-            'MUSIC ART INCUBATOR d.o.o.',
+            'Cadenza',
             '61044880248',
             (school?.iban || '').replace(/\s/g, ''),
             `91-${invoice.invoiceNumber}`,
@@ -138,7 +138,7 @@ const RenderPDF = ({ invoice, school, student, program, onReady, onProgress }) =
   useEffect(() => {
     const loadImage = async () => {
       try {
-        const { default: logo } = await import('../assets/MAI Logo.png');
+        const { default: logo } = await import('../assets/logo512.png');
         setLogoDataUri(logo);
         setLogoLoadingError(null);
       } catch (error) {

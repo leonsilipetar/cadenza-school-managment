@@ -8,6 +8,7 @@ import ApiConfig from './components/apiConfig.js';
 import Login from './components/Login.jsx';
 import Welcome from './components/Welcome.jsx';
 import SignUpForm from './scenes/SignUpForm.jsx';
+import SchoolRegister from './scenes/SchoolRegister.jsx';
 import Naslovna from './scenes/naslovna/Naslovna.jsx';
 import Profil from './scenes/Profile.jsx';
 // Route-level code splitting for heavy scenes
@@ -494,11 +495,13 @@ const App = () => {
     }, [isLoggedIn, user]);
 
     // REACT QUERY: Use hooks for chat data - automatic updates!
-    const unreadChatsCount = useUnreadCount(user);
+    // Only fetch when user is logged in and authenticated
+    const unreadChatsCount = useUnreadCount(isLoggedIn && user ? user : null);
     const invalidateChats = useInvalidateChats();
     
     // REACT QUERY: Use hook for active polls - automatic polling every 30s!
-    const { data: activePolls = [] } = useActivePolls();
+    // Only fetch when user is logged in
+    const { data: activePolls = [] } = useActivePolls(isLoggedIn && !!user);
 
     // Update the socket effect to handle unread count updates and notifications
     // OPTIMIZED: No more redundant API calls - just increment counter
@@ -831,6 +834,9 @@ const App = () => {
                 <Route path="/signup" element={
                     isLoggedIn ? <Navigate to="/user" /> : <SignUpForm />
                 } />
+                <Route path="/school-register" element={
+                    isLoggedIn ? <Navigate to="/user" /> : <SchoolRegister />
+                } />
                 <Route path="/signup/f8h3k2j9d5m7n1p4q6r8s0t2u4v6w8x0" element={<MentorSignUpForm />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/enroll" element={<EnrollmentConfirm user={user} />} />
@@ -848,7 +854,7 @@ const App = () => {
                     )
                 }>
                     <Route path="/user" element={
-                            <Naslovna user={user} unreadChatsCount={unreadChatsCount} activePolls={activePolls}/>
+                            <Naslovna user={user} unreadChatsCount={unreadChatsCount}/>
                     } />
                     <Route path="/profil" element={<Profil user={user} unreadChatsCount={unreadChatsCount}/>} />
                     <Route path="/chat" element={

@@ -7,7 +7,7 @@ export const pollKeys = {
 };
 
 // Hook to fetch active polls
-export const useActivePolls = () => {
+export const useActivePolls = (enabled = true) => {
   return useQuery({
     queryKey: pollKeys.active(),
     queryFn: async () => {
@@ -23,6 +23,7 @@ export const useActivePolls = () => {
     },
     staleTime: 30 * 1000, // 30 seconds (polls update frequently)
     refetchInterval: 30 * 1000, // Auto-refetch every 30 seconds
+    enabled: enabled, // Only fetch when enabled (user is logged in)
   });
 };
 

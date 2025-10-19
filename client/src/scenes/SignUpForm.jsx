@@ -6,12 +6,11 @@ import showNotification from '../components/Notifikacija';
 import '../components/auth-pages.css';
 import { useNavigate, Link } from 'react-router-dom';
 import logo512 from '../assets/logo512.png';
-import maiLogo from '../assets/MAI Logo.png';
 
 // Add reCAPTCHA site key
 const RECAPTCHA_SITE_KEY = '6LcdoAcrAAAAADrr4ikXSwJ8Lc267NMEc4YIZ48U'; // Replace with your site key
 
-const UGOVOR_PDF_URL = 'https://musicartincubator-cadenza.onrender.com/UGOVOR-SUGLASNOST-UPISNICA-2025.-2026-Music-Art-Incubator.pdf';
+const UGOVOR_PDF_URL = 'https://cadenza.com.hr/UGOVOR-SUGLASNOST-UPISNICA-2025.-2026-Music-Art-Incubator.pdf';
 
 const SignUpForm = () => {
   const [formData, setFormData] = useState({
@@ -41,7 +40,7 @@ const SignUpForm = () => {
     pohadjaTeoriju: false, // restore field
     napomene: '',
     pohadanjeNastave: '',
-    maiZbor: false,
+    customAttributes: {},
   });
 
 
@@ -418,7 +417,7 @@ const SignUpForm = () => {
         </div>
         <h2 className="auth-success-title">Hvala vam na prijavi! 🎵</h2>
         <div className="auth-success-message">
-          <p>Drago nam je što ste odabrali <strong>Music Art Incubator</strong>!</p>
+          <p>Drago nam je što ste odabrali <strong>Cadenza</strong>!</p>
           <p>Vaša prijava za <strong>{successData?.programName}</strong> u <strong>{successData?.schoolName}</strong> je uspješno zaprimljena.</p>
           <p>Administrator će pregledati vašu prijavu i u roku od <strong>24-48 sati</strong> ćete primiti email s podacima za prijavu.</p>
         </div>
@@ -453,16 +452,16 @@ const SignUpForm = () => {
                 alt="Cadenza Logo"
                 className="auth-main-logo"
               />
-              <a href="https://musicartincubator.com" target="_blank" rel="noopener noreferrer">
+              <a href="https://cadenza.com.hr" target="_blank" rel="noopener noreferrer">
                 <img
                   src={maiLogo}
-                  alt="Music Art Incubator Logo"
+                  alt="Cadenza Logo"
                   className="auth-mai-logo"
                 />
               </a>
             </div>
             <div className="auth-branding">
-              <h1 className="auth-brand-title">Music Art Incubator</h1>
+              <h1 className="auth-brand-title">Cadenza</h1>
               <h2 className="auth-app-title">CADENZA</h2>
               <p className="auth-subtitle">Platforma za glazbeno obrazovanje</p>
             </div>
@@ -481,12 +480,12 @@ const SignUpForm = () => {
               </Link>
               <span className="auth-footer-separator">|</span>
               <a 
-                href="https://www.musicartincubator.com" 
+                href="https://cadenza.com.hr" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="auth-footer-link"
               >
-                musicartincubator.com
+                cadenza.com.hr
               </a>
             </div>
           </div>
@@ -506,17 +505,9 @@ const SignUpForm = () => {
               alt="Cadenza Logo"
               className="auth-main-logo"
             />
-            <a href="https://musicartincubator.com" target="_blank" rel="noopener noreferrer">
-              <img
-                src={maiLogo}
-                alt="Music Art Incubator Logo"
-                className="auth-mai-logo"
-              />
-            </a>
           </div>
           <div className="auth-branding">
-            <h1 className="auth-brand-title">Music Art Incubator</h1>
-            <h2 className="auth-app-title">CADENZA</h2>
+            <h1 className="auth-brand-title">Cadenza</h1>
             <p className="auth-subtitle">Platforma za glazbeno obrazovanje</p>
           </div>
         </div>
@@ -1052,15 +1043,7 @@ const SignUpForm = () => {
                     </label>
                   </div>
                 </div>
-                <div className="auth-signup-row">
-                  <div className="auth-signup-group auth-checkbox-group">
-                    <label className="auth-checkbox-label">
-                      <input type="checkbox" name="maiZbor" checked={formData.maiZbor} onChange={handleInputChange} className="auth-checkbox" />
-                      <span className="auth-checkbox-custom"></span>
-                      <span className="auth-checkbox-text">MAI zborski programi</span>
-                    </label>
-                  </div>
-                </div>
+                {/* Removed school-specific "MAI Zbor" field - now using customAttributes for flexible school-specific data */}
               </div>
 
               {/* Additional Information Section */}
@@ -1178,12 +1161,12 @@ const SignUpForm = () => {
             </Link>
             <span className="auth-footer-separator">|</span>
             <a 
-              href="https://www.musicartincubator.com" 
+              href="https://cadenza.com.hr" 
               target="_blank" 
               rel="noopener noreferrer"
               className="auth-footer-link"
             >
-              musicartincubator.com
+              cadenza.com.hr
             </a>
           </div>
         </div>

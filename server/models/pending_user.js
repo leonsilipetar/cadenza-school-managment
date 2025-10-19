@@ -109,10 +109,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true
     },
-    maiZbor: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false
+    customAttributes: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+      defaultValue: {},
+      comment: 'Flexible JSON field for school-specific custom attributes'
     },
     pohadanjeNastave: {
       type: DataTypes.STRING,

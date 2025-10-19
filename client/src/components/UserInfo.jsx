@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Icon } from '@iconify/react';
 import ApiConfig from './apiConfig';
 import "../styles/Profile.css";
@@ -8,6 +8,8 @@ const UserInfoComponent = ({ user, schoolName, mentorName }) => {
   const [formattedDate, setFormattedDate] = useState('');
   const [profilePicture, setProfilePicture] = useState(null);
   const [showProfilePicturePopup, setShowProfilePicturePopup] = useState(false);
+  const fetchingRef = useRef(false);
+  const fetchedUserIdRef = useRef(null);
 
   useEffect(() => {
     if (user && user.datumRodjenja) {
@@ -19,21 +21,32 @@ const UserInfoComponent = ({ user, schoolName, mentorName }) => {
 
   // Fetch profile picture when component mounts or user changes
   useEffect(() => {
-    if (user && user.id) {
+    if (user && user.id && fetchedUserIdRef.current !== user.id) {
       fetchProfilePicture();
     }
   }, [user?.id]);
 
   // Fetch profile picture
   const fetchProfilePicture = async () => {
+    // Prevent multiple simultaneous calls
+    if (fetchingRef.current) return;
+    fetchingRef.current = true;
+    
     try {
       const response = await ApiConfig.cachedApi.get(`/api/profile-picture/${user.id}`);
       if (response?.success && response?.profilePicture) {
         setProfilePicture(response.profilePicture);
       }
+      fetchedUserIdRef.current = user.id; // Mark as fetched for this user
     } catch (error) {
-      console.error('Error fetching profile picture:', error);
+      // Silently handle 404 (no profile picture) - don't spam console
+      if (error?.response?.status !== 404) {
+        console.error('Error fetching profile picture:', error);
+      }
       setProfilePicture(null);
+      fetchedUserIdRef.current = user.id; // Mark as attempted even if failed
+    } finally {
+      fetchingRef.current = false;
     }
   };
 

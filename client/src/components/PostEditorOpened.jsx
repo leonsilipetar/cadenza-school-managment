@@ -8,6 +8,7 @@ import '../styles/TipTap.css';
 import Link from '@tiptap/extension-link';
 import { Node } from '@tiptap/core';
 import _ from 'lodash';
+import { useUpdatePost } from '../hooks/usePosts';
 
 // Add this line to ensure credentials are sent with requests
 ApiConfig.api.defaults.withCredentials = true;
@@ -185,15 +186,16 @@ const TiptapEditor = ({ content, onUpdate, editable }) => {
 };
 
 const PostEditorOpened = ({ post, onClose, onSave }) => {
+  const updatePost = useUpdatePost();
   const [formData, setFormData] = useState({
     title: post?.title || '',
     visibility: post?.visibility || 'public',
     showAllSchools: post?.showAllSchools || false
   });
   const [editorContent, setEditorContent] = useState(post?.content || '');
-  const [isSaving, setIsSaving] = useState(false);
   const [notification, setNotification] = useState(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const isSaving = updatePost.isPending;
 
   const handleChange = (e) => {
     e.preventDefault();
@@ -224,13 +226,14 @@ const PostEditorOpened = ({ post, onClose, onSave }) => {
   const handleSave = async () => {    
     if (isSaving) return;
 
-    setIsSaving(true);
-
     try {
       console.log('Updating existing post:', post.id);
-      const response = await ApiConfig.api.put(`/api/posts-edit/${post.id}`, {
-        ...formData,
-        content: editorContent
+      const response = await updatePost.mutateAsync({
+        postId: post.id,
+        data: {
+          ...formData,
+          content: editorContent
+        }
       });
 
       setNotification({
@@ -253,8 +256,6 @@ const PostEditorOpened = ({ post, onClose, onSave }) => {
         type: 'error',
         message: error.response?.data?.message || 'Greška pri ažuriranju objave'
       });
-    } finally {
-      setIsSaving(false);
     }
   };
 

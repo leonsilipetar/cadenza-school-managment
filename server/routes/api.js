@@ -54,14 +54,14 @@ router.post('/auth/reset-password', async (req, res) => {
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to: email,
-      subject: 'Nova lozinka - Music Art Incubator',
+      subject: 'Nova lozinka - Cadenza',
       html: `
         <div>
           <h2>Nova lozinka za vaš račun</h2>
           <p>Vaša nova lozinka je: <strong>${newPassword}</strong></p>
           <p>Molimo vas da se prijavite s novom lozinkom.</p>
           <br/>
-          <p>Lijep pozdrav,<br/>Music Art Incubator Tim</p>
+          <p>Lijep pozdrav,<br/>Cadenza Tim</p>
         </div>
       `
     });
